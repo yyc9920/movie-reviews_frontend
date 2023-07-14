@@ -11,8 +11,9 @@ import Navbar from 'react-bootstrap/Navbar';
 function App() {
   const [user, setUser] = React.useState(null);
 
-  async function login(user = null) {
+  async function login_user(user = null) {
     setUser(user);
+    console.log(user);
   }
 
   async function logout() {
@@ -45,7 +46,7 @@ function App() {
         <Route path="/movies" element={<MoviesList/>}/>
         <Route path="/movies/:id" element={<Movie user={user} />}/>
         <Route path="/movies/:id/review" element={<AddReview user={user} />} />
-        <Route path="/login" element={<Login login={login} />} />
+        <Route path="/login" element={<Login login_user={login_user} />} />
       </Routes>
     </div>
   );

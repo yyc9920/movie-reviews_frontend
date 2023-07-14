@@ -9,9 +9,11 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Button from "react-bootstrap/Button";
 import Media from "react-bootstrap/Media";
+import moment from "moment";
 
-const Movie = (user) => {
-	const {id} = useParams();
+const Movie = ({ user }) => {
+  console.log(user);
+  const { id } = useParams();
   const [movie, setMovie] = useState({
     id: null,
     title: "",
@@ -20,7 +22,7 @@ const Movie = (user) => {
   });
 
   const getMovie = (id) => {
-		console.log("Test");
+    console.log("Test");
     MovieDataService.get(id)
       .then((response) => {
         setMovie(response.data);
@@ -35,6 +37,21 @@ const Movie = (user) => {
     getMovie(id);
   }, [id]);
 
+  const deleteReview = (reviewId, index) => {
+    MovieDataService.deleteReview(reviewId, id)
+      .then((response) => {
+        setMovie((prevState) => {
+          prevState.reviews.splice(index, 1);
+          return {
+            ...prevState,
+          };
+        });
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
+
   return (
     <div>
       <Container>
@@ -48,14 +65,46 @@ const Movie = (user) => {
               <Card.Body>
                 <Card.Text>{movie.plot}</Card.Text>
                 {user && (
-                  <Link to={"/movies/" + id + "/review"}>
-                    Add Review
-                  </Link>
+                  <Link to={"/movies/" + id + "/review"}>Add Review</Link>
                 )}
               </Card.Body>
             </Card>
             <br></br>
             <h2>Reviews</h2>
+            <br></br>
+            {movie.reviews.map((review, index) => {
+              return (
+                <Media key={index}>
+                  <Media.Body>
+                    <h5>
+                      {review.name + " reviewd on "}{" "}
+                      {moment(review.date).format("D MMMM YYYY")}
+                    </h5>
+                    <p>{review.review}</p>
+                    {user && user.id === review.user_id && (
+                      <Row>
+                        <Col>
+                          <Link
+                            to={"/movies/" + id + "/review"}
+                            state={{ currentReview: review }}
+                          >
+                            Edit
+                          </Link>
+                        </Col>
+                        <Col>
+                          <Button
+                            variant="link"
+                            onClick={() => deleteReview(review._id, index)}
+                          >
+                            Delete
+                          </Button>
+                        </Col>
+                      </Row>
+                    )}
+                  </Media.Body>
+                </Media>
+              );
+            })}
           </Col>
         </Row>
       </Container>
